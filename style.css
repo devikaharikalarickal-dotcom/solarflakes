@@ -1,0 +1,436 @@
+:root {
+  --void: #00020d;
+  --deep: #050a24;
+  --nebula-blue: #0e1b4d;
+  --pulse: #00f0ff;
+  --star-gold: #ffd166;
+  --nova: #ff6b6b;
+  --glow: rgba(0,240,255,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Space Mono', monospace;
+  background: var(--void);
+  color: #c8d6ff;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── CANVAS STARS ── */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── SECTION BASE ── */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+/* ── HERO ── */
+.hero {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(10px, 2vw, 13px);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--pulse);
+  opacity: 0.7;
+}
+
+.hero h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.2rem, 7vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  background: linear-gradient(135deg, #fff 0%, var(--pulse) 50%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(0,240,255,0.3));
+}
+
+.astronaut-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin-bottom: 8px;
+}
+
+.astronaut-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,240,255,0.15) 0%, transparent 70%);
+  animation: pulseRing 3s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.astronaut-emoji {
+  font-size: 90px;
+  display: block;
+  line-height: 130px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 10px 30px rgba(0,240,255,0.4));
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-22px) rotate(3deg); }
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,240,255,0.2);
+  animation: orbit 8s linear infinite;
+}
+.orbit-ring::after {
+  content: '🛸';
+  font-size: 18px;
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 16px 36px;
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--void);
+  background: var(--pulse);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 20px rgba(0,240,255,0.4), 0 0 60px rgba(0,240,255,0.15);
+}
+
+.cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+.cta-btn:hover::before { transform: translateX(100%); }
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,240,255,0.6), 0 0 80px rgba(0,240,255,0.2);
+}
+
+/* ── SECTION TITLES ── */
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.section-sub {
+  font-size: 0.85rem;
+  color: rgba(200,214,255,0.55);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+/* ── WHAT IS SPACE ── */
+.what-grid {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
+.what-card {
+  background: linear-gradient(135deg, rgba(14,27,77,0.8), rgba(5,10,36,0.9));
+  border: 1px solid rgba(0,240,255,0.1);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 200px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.what-card:hover {
+  border-color: rgba(0,240,255,0.4);
+  transform: translateY(-6px);
+}
+
+.what-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.what-card h3 { font-family: 'Orbitron', monospace; font-size: 0.85rem; color: var(--pulse); margin-bottom: 8px; }
+.what-card p { font-size: 0.78rem; line-height: 1.6; color: rgba(200,214,255,0.7); }
+
+/* ── PLANETS ── */
+#planets { padding-bottom: 100px; }
+
+.planet-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.planet-card {
+  background: linear-gradient(145deg, var(--nebula-blue), var(--deep));
+  border: 1px solid rgba(0,240,255,0.1);
+  border-radius: 20px;
+  padding: 24px 20px;
+  width: 150px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.planet-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--pulse), transparent, #a78bfa);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+
+.planet-card:hover::after { opacity: 1; }
+.planet-card:hover { transform: translateY(-8px) scale(1.04); border-color: transparent; }
+
+.planet-emoji { font-size: 2.8rem; display: block; margin-bottom: 10px; }
+.planet-name { font-family: 'Orbitron', monospace; font-size: 0.8rem; color: #fff; }
+
+#planetInfo {
+  background: linear-gradient(135deg, rgba(0,240,255,0.05), rgba(167,139,250,0.05));
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  display: inline-block;
+  min-width: 280px;
+  max-width: 500px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+#planetInfo.show { opacity: 1; transform: translateY(0); }
+#planetInfo h3 { font-family: 'Orbitron', monospace; color: var(--pulse); font-size: 1.2rem; margin-bottom: 8px; }
+#planetInfo p { font-size: 0.85rem; line-height: 1.7; }
+
+/* ── DID YOU KNOW ── */
+.facts-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
+.fact-card {
+  background: var(--deep);
+  border: 1px solid rgba(0,240,255,0.1);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 240px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fact-card:hover { transform: scale(1.04); }
+
+.fact-front, .fact-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  transition: opacity 0.4s;
+}
+
+.fact-front { opacity: 1; }
+.fact-back { opacity: 0; }
+.fact-card.flipped .fact-front { opacity: 0; }
+.fact-card.flipped .fact-back { opacity: 1; }
+
+.fact-front-icon { font-size: 2.2rem; margin-bottom: 10px; }
+.fact-front-label { font-size: 0.75rem; color: var(--pulse); letter-spacing: 0.1em; }
+.fact-back p { font-size: 0.82rem; line-height: 1.65; color: #fff; text-align: center; }
+.fact-back .fact-icon { font-size: 1.5rem; margin-bottom: 10px; }
+
+/* ── GAME ── */
+.game-section { background: rgba(5,10,36,0.6); }
+
+#gameCanvas {
+  border: 1px solid rgba(0,240,255,0.3);
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,240,255,0.1), inset 0 0 40px rgba(0,0,0,0.5);
+  touch-action: none;
+  max-width: 100%;
+}
+
+.game-controls-hint {
+  font-size: 0.75rem;
+  color: rgba(200,214,255,0.4);
+  margin-top: 14px;
+  letter-spacing: 0.1em;
+}
+
+.touch-controls {
+  display: none;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (pointer: coarse) {
+  .touch-controls { display: flex; }
+  .game-controls-hint { display: none; }
+}
+
+.touch-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,240,255,0.4);
+  background: rgba(0,240,255,0.1);
+  color: var(--pulse);
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s;
+}
+.touch-btn:active { background: rgba(0,240,255,0.3); }
+
+.game-start-overlay {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem;
+  color: var(--pulse);
+  margin-top: 12px;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* ── QUIZ ── */
+.quiz-box {
+  background: linear-gradient(145deg, var(--nebula-blue), var(--deep));
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 20px;
+  padding: 36px 32px;
+  display: inline-block;
+  max-width: 500px;
+  width: 100%;
+}
+
+.quiz-q {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  margin-bottom: 28px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.quiz-btn {
+  padding: 14px 10px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  background: rgba(0,240,255,0.05);
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 10px;
+  color: #c8d6ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quiz-btn:hover { background: rgba(0,240,255,0.15); border-color: var(--pulse); color: #fff; }
+.quiz-btn.correct { background: rgba(0,255,150,0.15); border-color: #00ff96; color: #00ff96; }
+.quiz-btn.wrong { background: rgba(255,107,107,0.15); border-color: var(--nova); color: var(--nova); }
+
+#quizResult {
+  font-size: 0.85rem;
+  min-height: 24px;
+  transition: color 0.3s;
+}
+#quizResult.correct { color: #00ff96; }
+#quizResult.wrong { color: var(--nova); }
+
+.badge { font-size: 2.5rem; margin-top: 16px; min-height: 48px; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  padding: 32px;
+  font-size: 0.7rem;
+  color: rgba(200,214,255,0.25);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pulse), transparent);
+  margin: 0 auto 40px;
+}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Solar Shield Defense</title>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:#000; /* fully dark */
+    font-family:Arial, sans-serif;
+    color:white;
+}
+
+/* ===== SCOREBOARD ===== */
+#scoreboard{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(255,255,255,0.05);
+    padding:12px 25px;
+    border-radius:15px;
+    text-align:center;
+    font-size:18px;
+    backdrop-filter:blur(6px);
+    z-index:10;
+}
+
+/* ===== Cute Animated Sun ===== */
+#sun{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:90px;
+    animation:pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse{
+    0%{ transform:translate(-50%,-50%) scale(1);}
+    50%{ transform:translate(-50%,-50%) scale(1.1);}
+    100%{ transform:translate(-50%,-50%) scale(1);}
+}
+
+/* ===== Shield Ring ===== */
+#shield{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width: 260px;
+    height:260px;
+    margin-left:-130px;
+    margin-top:-130px;
+    border-radius:50%;
+    border:3px solid rgba(0,255,255,0.2);
+}
+
+#arc{
+    position:absolute;
+    width:140px;
+    height:240px;
+    border-radius:130px 0 0 130px;
+    border:10px solid rgb(239, 241, 241);
+    border-right:none;
+    top:0;
+    left:0;
+    transform-origin:130px 130px;
+}
+
+/* ===== Flares ===== */
+.flare{
+    position:absolute;
+    font-size:30px;
+}
+
+/* ===== Screens ===== */
+.screen{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:#000;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:20;
+}
+
+button{
+    padding:12px 22px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:orange;
+    cursor:pointer;
+    margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="start" class="screen">
+<h1>☀️ Solar Guardian</h1>
+<p>Protect the cute sun from incoming solar flares!</p>
+<p>Block with your shield. Reach 100 score to win.</p>
+<button onclick="startGame()">Start</button>
+</div>
+
+<div id="win" class="screen" style="display:none;">
+<h1>🏆 You Saved the Sun!</h1>
+<button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="gameover" class="screen" style="display:none;">
+<h1>💥 The Sun Exploded!</h1>
+<button onclick="location.reload()">Retry</button>
+</div>
+
+<div id="scoreboard">
+Score: <span id="score">0</span><br>
+Lives: <span id="hearts">❤️❤️❤️❤️❤️</span>
+</div>
+
+<div id="sun">🌞</div>
+
+<div id="shield">
+<div id="arc"></div>
+</div>
+
+<script>
+let score=0;
+let lives=5;
+let running=false;
+let shieldAngle=0;
+let speed=2;
+
+/* Start */
+function startGame(){
+    document.getElementById("start").style.display="none";
+    running=true;
+    setInterval(spawnFlare,700);
+    requestAnimationFrame(gameLoop);
+}
+
+/* Rotate shield */
+document.addEventListener("mousemove",e=>{
+    if(!running) return;
+
+    let cx=window.innerWidth/2;
+    let cy=window.innerHeight/2;
+
+    let dx=e.clientX-cx;
+    let dy=e.clientY-cy;
+
+    shieldAngle=Math.atan2(dy,dx)*180/Math.PI;
+    document.getElementById("arc").style.transform=
+        "rotate("+shieldAngle+"deg)";
+});
+
+/* Spawn flares aligned toward sun */
+function spawnFlare(){
+    if(!running) return;
+
+    let flare=document.createElement("div");
+    flare.className="flare";
+    flare.innerHTML="✨";
+
+    let angle=Math.random()*2*Math.PI;
+    let radius=Math.max(window.innerWidth,window.innerHeight)/2 + 50;
+
+    flare.x=window.innerWidth/2 + radius*Math.cos(angle);
+    flare.y=window.innerHeight/2 + radius*Math.sin(angle);
+
+    flare.style.left=flare.x+"px";
+    flare.style.top=flare.y+"px";
+
+    document.body.appendChild(flare);
+}
+
+/* Game loop */
+function gameLoop(){
+    if(!running) return;
+
+    let cx=window.innerWidth/2;
+    let cy=window.innerHeight/2;
+
+    document.querySelectorAll(".flare").forEach(f=>{
+        let dx=cx-f.x;
+        let dy=cy-f.y;
+        let dist=Math.sqrt(dx*dx+dy*dy);
+
+        f.x+=dx/dist*speed;
+        f.y+=dy/dist*speed;
+
+        f.style.left=f.x+"px";
+        f.style.top=f.y+"px";
+
+        /* Shield block */
+        if(dist<150 && blockCheck(dx,dy)){
+            score++;
+            document.getElementById("score").innerText=score;
+            f.remove();
+
+            if(score>=100){
+                running=false;
+                document.getElementById("win").style.display="flex";
+            }
+        }
+
+        /* Hit sun */
+        if(dist<60){
+            f.remove();
+            lives--;
+            document.getElementById("hearts").innerText="❤️".repeat(lives);
+
+            if(lives<=0){
+                running=false;
+                document.getElementById("gameover").style.display="flex";
+            }
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* Shield direction check */
+function blockCheck(dx,dy){
+    let flareAngle=Math.atan2(dy,dx)*180/Math.PI;
+    let diff=Math.abs(flareAngle-shieldAngle);
+    return diff<60;
+}
+</script>
+
+</body>
+</html>

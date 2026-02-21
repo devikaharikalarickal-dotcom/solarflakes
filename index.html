@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Little Astronauts 🚀</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #00010a;
+      --deep: #050a1e;
+      --pulse: #00d4ff;
+      --gold: #ffd166;
+      --nova: #ff5757;
+      --green: #00ff9d;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Exo 2',sans-serif;background:var(--void);color:#c8d6ff;overflow-x:hidden;cursor:crosshair}
+
+    /* ═══ NAV ═══ */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:16px 40px;background:rgba(0,1,10,0.7);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,212,255,0.1)}
+    .nav-logo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--pulse);letter-spacing:0.1em}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{padding:8px 18px;font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:0.1em;color:#c8d6ff;text-decoration:none;border:1px solid rgba(0,212,255,0.2);border-radius:30px;transition:all 0.2s}
+    .nav-link:hover,.nav-link.active{background:rgba(0,212,255,0.15);border-color:var(--pulse);color:#fff}
+
+    /* ═══ CANVAS BACKGROUND ═══ */
+    #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+    /* ═══ SECTIONS ═══ */
+    section{position:relative;z-index:1;padding:100px 20px}
+
+    /* ═══ HERO ═══ */
+    .hero{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center;padding-top:80px}
+    .hero-eyebrow{font-family:'Orbitron',monospace;font-size:clamp(9px,1.5vw,12px);letter-spacing:0.5em;text-transform:uppercase;color:var(--pulse);opacity:0.7}
+    .hero h1{font-family:'Orbitron',monospace;font-size:clamp(2rem,6vw,5rem);font-weight:900;line-height:1.05;background:linear-gradient(135deg,#fff 0%,var(--pulse) 55%,#a78bfa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(0,212,255,0.4))}
+    .hero-sub{font-size:clamp(0.85rem,2vw,1.1rem);opacity:0.5;letter-spacing:0.15em;font-weight:300}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+    .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.08em;color:#000;background:var(--pulse);border:none;border-radius:50px;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 24px rgba(0,212,255,0.5)}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,212,255,0.7)}
+    .btn-outline{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.08em;color:var(--pulse);background:transparent;border:1.5px solid var(--pulse);border-radius:50px;cursor:pointer;text-decoration:none;transition:all 0.2s}
+    .btn-outline:hover{background:rgba(0,212,255,0.1);transform:translateY(-3px)}
+
+    /* ═══ SUN DISPLAY ═══ */
+    .earth-scene{position:relative;width:340px;height:340px;margin:0 auto 20px}
+    .earth-glow{position:absolute;inset:-40px;border-radius:50%;background:radial-gradient(circle,rgba(255,180,0,0.25) 0%,rgba(255,80,0,0.1) 50%,transparent 75%);animation:glowPulse 3s ease-in-out infinite}
+    @keyframes glowPulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+    #sunCanvas{border-radius:50%;box-shadow:0 0 80px rgba(255,160,0,0.7),0 0 160px rgba(255,80,0,0.3),0 0 240px rgba(255,50,0,0.1);display:block;margin:auto}
+    .orbit-moon{position:absolute;inset:-50px;border-radius:50%;border:1px solid rgba(255,200,100,0.1);animation:orbitMoon 14s linear infinite}
+    .orbit-moon::after{content:'🌍';font-size:22px;position:absolute;top:-13px;left:50%;transform:translateX(-50%)}
+    @keyframes orbitMoon{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .orbit-sat{position:absolute;inset:-80px;border-radius:50%;border:1px solid rgba(255,200,100,0.06);animation:orbitSat 9s linear infinite reverse}
+    .orbit-sat::after{content:'🪐';font-size:16px;position:absolute;top:-10px;left:50%;transform:translateX(-50%)}
+    @keyframes orbitSat{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    /* ═══ SECTION TITLES ═══ */
+    .sec-label{font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--pulse);opacity:0.6;margin-bottom:10px}
+    .sec-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.6rem);font-weight:900;color:#fff;margin-bottom:8px}
+    .sec-divider{width:50px;height:2px;background:linear-gradient(90deg,var(--pulse),transparent);margin:0 auto 50px}
+
+    /* ═══ WHAT IS SPACE ═══ */
+    .what-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;max-width:900px;margin:0 auto}
+    .what-card{background:linear-gradient(145deg,rgba(14,27,77,0.6),rgba(5,10,36,0.8));border:1px solid rgba(0,212,255,0.1);border-radius:20px;padding:30px 20px;text-align:center;transition:all 0.3s;cursor:default;position:relative;overflow:hidden}
+    .what-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,212,255,0.08),transparent 60%);opacity:0;transition:opacity 0.3s}
+    .what-card:hover{transform:translateY(-8px);border-color:rgba(0,212,255,0.35)}
+    .what-card:hover::before{opacity:1}
+    .what-icon{font-size:2.8rem;display:block;margin-bottom:14px}
+    .what-card h3{font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--pulse);margin-bottom:10px;letter-spacing:0.05em}
+    .what-card p{font-size:0.78rem;line-height:1.65;color:rgba(200,214,255,0.65)}
+    .flake-bubble{display:flex;align-items:flex-start;gap:14px;max-width:500px;margin:40px auto 0;padding:22px 26px;background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(167,139,250,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:20px;opacity:0;transform:translateY(12px) scale(0.97);transition:opacity 0.35s,transform 0.35s;pointer-events:none}
+    .flake-bubble.visible{opacity:1;transform:translateY(0) scale(1)}
+    .flake-avatar{font-size:2.2rem;animation:spinFlake 6s linear infinite;filter:drop-shadow(0 0 8px rgba(0,212,255,0.6));flex-shrink:0}
+    @keyframes spinFlake{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .flake-name{font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--pulse);text-transform:uppercase;margin-bottom:6px}
+    .flake-text{font-size:0.82rem;line-height:1.65;color:#dce8ff}
+
+    /* ═══ PLANETS ═══ */
+    #planets{text-align:center}
+    .planets-showcase{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:24px;max-width:1100px;margin:0 auto 50px}
+    .planet-card{background:linear-gradient(145deg,rgba(10,18,60,0.7),rgba(5,10,30,0.9));border:1px solid rgba(0,212,255,0.1);border-radius:24px;padding:28px 16px 20px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;text-align:center}
+    .planet-card::after{content:'';position:absolute;inset:-1px;border-radius:24px;background:linear-gradient(135deg,var(--pulse),transparent 50%,#a78bfa);opacity:0;transition:opacity 0.3s;z-index:-1}
+    .planet-card:hover{transform:translateY(-10px) scale(1.03);border-color:transparent}
+    .planet-card:hover::after{opacity:1}
+    .planet-canvas-wrap{width:90px;height:90px;margin:0 auto 14px;position:relative}
+    .planet-canvas-wrap canvas{border-radius:50%;display:block}
+    .planet-ring-wrap{position:relative;width:110px;height:90px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+    .planet-ring{position:absolute;width:140px;height:30px;border-radius:50%;border:4px solid rgba(210,180,100,0.5);transform:rotateX(70deg);pointer-events:none}
+    .p-name{font-family:'Orbitron',monospace;font-size:0.78rem;color:#fff;margin-bottom:4px}
+    .p-type{font-size:0.65rem;color:rgba(200,214,255,0.45);letter-spacing:0.1em}
+    #planetDetail{max-width:600px;margin:0 auto;background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(167,139,250,0.05));border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:32px 36px;opacity:0;transform:translateY(16px);transition:all 0.4s}
+    #planetDetail.show{opacity:1;transform:translateY(0)}
+    #planetDetail h3{font-family:'Orbitron',monospace;color:var(--pulse);font-size:1.3rem;margin-bottom:6px}
+    #planetDetail .p-subtitle{font-size:0.75rem;color:rgba(200,214,255,0.45);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:14px}
+    #planetDetail p{font-size:0.88rem;line-height:1.75;color:#c8d6ff}
+    #planetDetail .stats{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+    #planetDetail .stat{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.15);border-radius:10px;padding:10px 16px;flex:1;min-width:100px}
+    #planetDetail .stat-label{font-size:0.62rem;color:var(--pulse);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px}
+    #planetDetail .stat-val{font-family:'Orbitron',monospace;font-size:0.9rem;color:#fff}
+
+    /* ═══ DID YOU KNOW ═══ */
+    .facts-section{text-align:center}
+    .facts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+    .fact-card{background:linear-gradient(145deg,rgba(5,10,36,0.9),rgba(10,18,60,0.7));border:1px solid rgba(0,212,255,0.1);border-radius:24px;padding:36px 28px;text-align:left;position:relative;overflow:hidden;transition:transform 0.3s,border-color 0.3s;min-height:200px;display:flex;flex-direction:column;justify-content:space-between}
+    .fact-card:hover{transform:translateY(-6px);border-color:rgba(0,212,255,0.3)}
+    .fact-num{font-family:'Orbitron',monospace;font-size:3.5rem;font-weight:900;color:rgba(0,212,255,0.06);position:absolute;top:16px;right:20px;line-height:1}
+    .fact-icon-big{font-size:2.4rem;margin-bottom:16px;display:block}
+    .fact-card h3{font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--pulse);margin-bottom:10px;letter-spacing:0.05em}
+    .fact-card p{font-size:0.82rem;line-height:1.7;color:rgba(200,214,255,0.75)}
+    .fact-reveal-btn{margin-top:18px;display:inline-flex;align-items:center;gap:6px;font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--pulse);background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:7px 14px;cursor:pointer;transition:all 0.2s;align-self:flex-start}
+    .fact-reveal-btn:hover{background:rgba(0,212,255,0.18)}
+    .fact-hidden{display:none;margin-top:12px;font-size:0.8rem;line-height:1.7;color:var(--gold);animation:fadeUp 0.4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ═══ FOOTER ═══ */
+    footer{position:relative;z-index:1;text-align:center;padding:40px 20px;font-size:0.7rem;color:rgba(200,214,255,0.2);letter-spacing:0.2em;text-transform:uppercase;border-top:1px solid rgba(0,212,255,0.05)}
+    footer a{color:var(--pulse);text-decoration:none;opacity:0.6}
+    footer a:hover{opacity:1}
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">⭐ Little Astronauts</span>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link active">Home</a>
+    <a href="game.html" class="nav-link">🚀 Game</a>
+    <a href="quiz.html" class="nav-link">🏆 Quiz</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow">Mission Control — Ready for Launch</span>
+  <div class="earth-scene">
+    <div class="earth-glow"></div>
+    <div class="orbit-moon"></div>
+    <div class="orbit-sat"></div>
+    <canvas id="sunCanvas" width="260" height="260"></canvas>
+  </div>
+  <h1>👩🏻‍🚀 Little Astronauts 🚀</h1>
+  <p class="hero-sub">The universe awaits, cadet. Begin your mission.</p>
+  <div class="hero-btns">
+    <a href="#planets" class="btn-primary">Explore Planets 🪐</a>
+    <a href="game.html" class="btn-outline">Play Game 🚀</a>
+    <a href="quiz.html" class="btn-outline">Take Quiz 🏆</a>
+  </div>
+</section>
+
+<!-- WHAT IS SPACE -->
+<section id="about" style="text-align:center">
+  <p class="sec-label">// Mission Briefing</p>
+  <h2 class="sec-title">What is Space?</h2>
+  <div class="sec-divider"></div>
+  <div class="what-grid">
+    <div class="what-card" data-tip="Wow! Space is SO enormous — if you drove a car at highway speed without stopping, it would take over 100 billion years to cross our galaxy alone! 🚗💨">
+      <span class="what-icon">🌌</span>
+      <h3>Vast</h3>
+      <p>Space stretches beyond anything we can measure, filled with billions of galaxies each holding billions of stars.</p>
+    </div>
+    <div class="what-card" data-tip="Planets are like giant marbles floating around the Sun! Some are rocky like Earth, but gas giants like Jupiter are made mostly of gas — you could never land on them! 🪐">
+      <span class="what-icon">🪐</span>
+      <h3>Planets</h3>
+      <p>Rocky worlds, gas giants, and icy moons all orbit stars — our Solar System has 8 amazing planets!</p>
+    </div>
+    <div class="what-card" data-tip="Stars are giant fireballs! Our Sun is a star, and it's so big that 1.3 million Earths could fit inside it. Some stars are even 1,000 times bigger than our Sun! ⭐🔥">
+      <span class="what-icon">⭐</span>
+      <h3>Stars</h3>
+      <p>Massive balls of burning gas like our Sun — some are millions of times bigger and brighter!</p>
+    </div>
+    <div class="what-card" data-tip="Space is full of mind-bending secrets! Black holes are so powerful that not even light can escape their gravity. Scientists are still discovering new wonders every day! 🕳️🔭">
+      <span class="what-icon">🕳️</span>
+      <h3>Mysteries</h3>
+      <p>Black holes, dark matter, wormholes — space holds secrets that scientists are still uncovering.</p>
+    </div>
+    <div class="what-card" data-tip="Space is completely silent! There's no air for sound waves to travel through. An explosion in space would make zero noise — total silence! 🤫">
+      <span class="what-icon">🔇</span>
+      <h3>Silence</h3>
+      <p>In space, no one can hear you scream — sound needs air to travel, and space has none at all!</p>
+    </div>
+    <div class="what-card" data-tip="Space is freezing cold in the shadows — about -270°C! But in direct sunlight it can reach +120°C. Astronauts' suits protect them from both extremes! 🥶🔥">
+      <span class="what-icon">🌡️</span>
+      <h3>Extreme</h3>
+      <p>Temperatures swing from boiling hot in sunlight to super freezing cold in shadow — all in the same place!</p>
+    </div>
+  </div>
+  <div class="flake-bubble" id="flakeBubble">
+    <div class="flake-avatar">❄️</div>
+    <div>
+      <div class="flake-name">Nova the Snowflake says...</div>
+      <p class="flake-text" id="flakeText"></p>
+    </div>
+  </div>
+</section>
+
+<!-- PLANETS -->
+<section id="planets">
+  <div style="text-align:center">
+    <p class="sec-label">// Solar System Database</p>
+    <h2 class="sec-title">Explore the Planets</h2>
+    <div class="sec-divider"></div>
+  </div>
+  <div class="planets-showcase" id="planetGrid"></div>
+  <div id="planetDetail">
+    <h3 id="pdName">Select a planet</h3>
+    <div class="p-subtitle" id="pdType">—</div>
+    <p id="pdFact">Click any planet above to discover amazing facts!</p>
+    <div class="stats" id="pdStats"></div>
+  </div>
+</section>
+
+<!-- DID YOU KNOW -->
+<section class="facts-section">
+  <p class="sec-label">// Classified Intel</p>
+  <h2 class="sec-title">Did You Know?</h2>
+  <div class="sec-divider"></div>
+  <div class="facts-grid">
+    <div class="fact-card">
+      <span class="fact-num">01</span>
+      <span class="fact-icon-big">🌍</span>
+      <h3>Earth's Speed</h3>
+      <p>Right now, you're traveling at 107,000 km/h through space as Earth orbits the Sun — without even feeling it!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">Earth also spins at 1,670 km/h at the equator — that's why we have day and night!</div>
+    </div>
+    <div class="fact-card">
+      <span class="fact-num">02</span>
+      <span class="fact-icon-big">☀️</span>
+      <h3>Sunlight Travel Time</h3>
+      <p>Light from the Sun takes exactly 8 minutes and 20 seconds to reach Earth. So we always see the Sun as it was 8 minutes ago!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">Light from the nearest star beyond our Sun takes over 4 years to reach us. Space is immense!</div>
+    </div>
+    <div class="fact-card">
+      <span class="fact-num">03</span>
+      <span class="fact-icon-big">👨‍🚀</span>
+      <h3>Floating Astronauts</h3>
+      <p>Astronauts don't float because there's no gravity — they float because they're in constant free-fall around Earth!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">In space, astronauts grow up to 5cm taller because their spine stretches without Earth's gravity pushing down!</div>
+    </div>
+    <div class="fact-card">
+      <span class="fact-num">04</span>
+      <span class="fact-icon-big">🌕</span>
+      <h3>Super Moon Jumps</h3>
+      <p>On the Moon, gravity is 6 times weaker than on Earth. You could jump over a two-storey building and land safely!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">Footprints left by Apollo astronauts on the Moon will stay there for millions of years — there's no wind or rain to erase them!</div>
+    </div>
+    <div class="fact-card">
+      <span class="fact-num">05</span>
+      <span class="fact-icon-big">🌌</span>
+      <h3>Countless Stars</h3>
+      <p>There are more stars in the universe than grains of sand on all of Earth's beaches combined. That's at least a septillion stars!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">Our Milky Way galaxy alone contains between 100–400 billion stars. And there are trillions of galaxies out there!</div>
+    </div>
+    <div class="fact-card">
+      <span class="fact-num">06</span>
+      <span class="fact-icon-big">🔴</span>
+      <h3>Mars Volcano</h3>
+      <p>Olympus Mons on Mars is the largest volcano in the whole Solar System — three times taller than Mount Everest!</p>
+      <button class="fact-reveal-btn" onclick="revealFact(this)">✨ Bonus Fact</button>
+      <div class="fact-hidden">A Martian day is 24 hours and 37 minutes — almost the same as Earth's! But a Martian year lasts 687 Earth days.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© Little Astronauts &nbsp;|&nbsp; Keep exploring, cadet 🌌 &nbsp;|&nbsp;
+    <a href="game.html">Play Game</a> &nbsp;·&nbsp; <a href="quiz.html">Take Quiz</a>
+  </p>
+</footer>
+
+<script>
+/* ══════════════════════════════════════
+   ANIMATED SPACE BACKGROUND
+══════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('bgCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,stars=[],nebulae=[];
+
+  function resize(){
+    W=c.width=window.innerWidth;
+    H=c.height=window.innerHeight;
+    stars=Array.from({length:350},()=>({
+      x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*1.6+0.1,
+      a:Math.random()*Math.PI*2,
+      speed:Math.random()*0.5+0.1,
+      twinkle:Math.random()
+    }));
+    nebulae=[
+      {x:W*0.15,y:H*0.3,r:220,c:'rgba(30,0,100,0.06)'},
+      {x:W*0.8,y:H*0.6,r:300,c:'rgba(0,50,120,0.06)'},
+      {x:W*0.5,y:H*0.8,r:180,c:'rgba(80,0,120,0.04)'},
+    ];
+  }
+
+  function draw(){
+    // Deep space gradient
+    const grad=ctx.createRadialGradient(W/2,H*0.4,0,W/2,H*0.4,W*0.8);
+    grad.addColorStop(0,'#00050f');
+    grad.addColorStop(0.5,'#00020a');
+    grad.addColorStop(1,'#000005');
+    ctx.fillStyle=grad;
+    ctx.fillRect(0,0,W,H);
+
+    // Nebula clouds
+    nebulae.forEach(n=>{
+      const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+      g.addColorStop(0,n.c);
+      g.addColorStop(1,'transparent');
+      ctx.fillStyle=g;
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+    });
+
+    // Stars
+    const t=Date.now()/1000;
+    stars.forEach(s=>{
+      s.a+=s.speed*0.008;
+      const alpha=0.25+0.75*Math.abs(Math.sin(s.a));
+      const size=s.r*(0.8+0.2*Math.abs(Math.sin(s.a*0.7)));
+      ctx.beginPath();ctx.arc(s.x,s.y,size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(220,235,255,${alpha})`;
+      ctx.fill();
+      // Occasional bright star cross
+      if(s.r>1.3&&Math.sin(s.a)>0.95){
+        ctx.strokeStyle=`rgba(200,230,255,${alpha*0.4})`;
+        ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(s.x-8,s.y);ctx.lineTo(s.x+8,s.y);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(s.x,s.y-8);ctx.lineTo(s.x,s.y+8);ctx.stroke();
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+
+/* ══════════════════════════════════════
+   SUN CANVAS — Realistic animated
+══════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('sunCanvas');
+  const ctx=c.getContext('2d');
+  const S=260;
+  const cx=S/2,cy=S/2,r=S/2-4;
+  let t=0;
+
+  // Offscreen plasma surface
+  const plasma=document.createElement('canvas');
+  plasma.width=S*3;plasma.height=S;
+  const pctx=plasma.getContext('2d');
+
+  function drawPlasma(time){
+    pctx.clearRect(0,0,S*3,S);
+    // Base solar surface
+    for(let x=0;x<S*3;x+=18){
+      for(let y=0;y<S;y+=18){
+        const nx=x/S*3,ny=y/S*2;
+        const n=Math.sin(nx*2.1+time*0.7)*Math.cos(ny*1.8-time*0.5)*0.5+0.5;
+        const n2=Math.sin(nx*3.5-time*1.1)*Math.sin(ny*2.9+time*0.4)*0.5+0.5;
+        const blend=(n+n2)/2;
+        const r2=Math.round(220+35*blend);
+        const g2=Math.round(90+80*blend);
+        const b2=Math.round(0+10*blend);
+        pctx.fillStyle=`rgb(${r2},${g2},${b2})`;
+        pctx.beginPath();pctx.arc(x,y,10+4*blend,0,Math.PI*2);pctx.fill();
+      }
+    }
+  }
+
+  // Solar flare blobs
+  const flares=[
+    {ox:0.15,oy:-0.85,phase:0,speed:0.018,size:18},
+    {ox:0.75,oy:-0.65,phase:1.2,speed:0.014,size:14},
+    {ox:-0.8,oy:0.5,phase:2.5,speed:0.02,size:12},
+    {ox:0.6,oy:0.75,phase:0.8,speed:0.016,size:16},
+    {ox:-0.5,oy:-0.7,phase:3.1,speed:0.022,size:10},
+  ];
+
+  function draw(){
+    ctx.clearRect(0,0,S,S);
+    t+=0.018;
+
+    // Draw plasma to offscreen
+    drawPlasma(t);
+
+    // Clip to circle and draw scrolling plasma surface
+    ctx.save();
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+
+    // Base gradient
+    const base=ctx.createRadialGradient(cx*0.7,cy*0.7,0,cx,cy,r);
+    base.addColorStop(0,'#fff7e0');
+    base.addColorStop(0.15,'#ffe066');
+    base.addColorStop(0.4,'#ffaa00');
+    base.addColorStop(0.75,'#ff6600');
+    base.addColorStop(1,'#cc2200');
+    ctx.fillStyle=base;ctx.fillRect(0,0,S,S);
+
+    // Scrolling plasma texture overlay
+    ctx.globalAlpha=0.55;
+    const scrollOff=(t*12)%(S*3);
+    ctx.drawImage(plasma,-scrollOff,0,S*3,S);
+    ctx.drawImage(plasma,S*3-scrollOff,0,S*3,S);
+    ctx.globalAlpha=1;
+
+    // Sunspot 1
+    const sp1x=cx+Math.cos(t*0.3)*r*0.25;
+    const sp1y=cy+Math.sin(t*0.3)*r*0.18;
+    ctx.fillStyle='rgba(120,30,0,0.55)';
+    ctx.beginPath();ctx.ellipse(sp1x,sp1y,22,16,t*0.1,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(80,10,0,0.4)';
+    ctx.beginPath();ctx.ellipse(sp1x,sp1y,12,9,t*0.1,0,Math.PI*2);ctx.fill();
+
+    // Sunspot 2
+    const sp2x=cx+Math.cos(t*0.2+2)*r*0.35;
+    const sp2y=cy+Math.sin(t*0.2+2)*r*0.3;
+    ctx.fillStyle='rgba(140,40,0,0.45)';
+    ctx.beginPath();ctx.ellipse(sp2x,sp2y,14,10,t*0.15,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(90,15,0,0.35)';
+    ctx.beginPath();ctx.ellipse(sp2x,sp2y,7,5,t*0.15,0,Math.PI*2);ctx.fill();
+
+    // Bright core glare
+    const glare=ctx.createRadialGradient(cx-r*0.25,cy-r*0.25,0,cx,cy,r*0.85);
+    glare.addColorStop(0,'rgba(255,255,220,0.55)');
+    glare.addColorStop(0.4,'rgba(255,220,100,0.15)');
+    glare.addColorStop(1,'transparent');
+    ctx.fillStyle=glare;ctx.fillRect(0,0,S,S);
+
+    ctx.restore();
+
+    // Solar corona spikes (outside sphere)
+    const numSpikes=16;
+    for(let i=0;i<numSpikes;i++){
+      const baseAngle=(i/numSpikes)*Math.PI*2+t*0.05;
+      const spikeR=r+18+Math.sin(t*1.3+i*0.7)*12;
+      const spikeW=0.06+Math.abs(Math.sin(t*0.8+i))*0.04;
+      const alpha=0.15+Math.abs(Math.sin(t*0.9+i*0.5))*0.2;
+      const g=ctx.createConicalGradient?null:null;
+      ctx.beginPath();
+      ctx.moveTo(cx+Math.cos(baseAngle-spikeW)*r, cy+Math.sin(baseAngle-spikeW)*r);
+      ctx.lineTo(cx+Math.cos(baseAngle)*spikeR, cy+Math.sin(baseAngle)*spikeR);
+      ctx.lineTo(cx+Math.cos(baseAngle+spikeW)*r, cy+Math.sin(baseAngle+spikeW)*r);
+      ctx.closePath();
+      ctx.fillStyle=`rgba(255,${160+Math.round(60*Math.abs(Math.sin(t+i)))},0,${alpha})`;
+      ctx.fill();
+    }
+
+    // Outer corona glow layers
+    for(let layer=0;layer<4;layer++){
+      const coronaR=r+(layer+1)*18;
+      const alpha=0.18-layer*0.04;
+      const corona=ctx.createRadialGradient(cx,cy,r,cx,cy,coronaR+8);
+      corona.addColorStop(0,`rgba(255,140,0,${alpha})`);
+      corona.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(cx,cy,coronaR,0,Math.PI*2);
+      ctx.fillStyle=corona;ctx.fill();
+    }
+
+    // Solar prominence arcs (animated loops above surface)
+    flares.forEach((fl,i)=>{
+      fl.phase+=fl.speed;
+      const pulse=0.5+0.5*Math.sin(fl.phase);
+      const bx=cx+fl.ox*r*0.82;
+      const by=cy+fl.oy*r*0.82;
+      const ht=fl.size*(0.6+0.8*pulse);
+      const nx=bx+Math.cos(fl.phase)*fl.size*0.5;
+      const ny=by-ht*1.8;
+      const ex=bx+Math.cos(fl.phase+0.5)*fl.size;
+      const ey=by-ht*0.3;
+      ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(nx,ny,ex,ey);
+      ctx.strokeStyle=`rgba(255,${100+Math.round(100*pulse)},0,${0.5+0.3*pulse})`;
+      ctx.lineWidth=3+2*pulse;ctx.lineCap='round';ctx.stroke();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ══════════════════════════════════════
+   PLANET SYSTEM
+══════════════════════════════════════ */
+const PLANETS=[
+  {name:'Mercury',type:'Rocky Planet',emoji:'🪨',color:['#8c7b6e','#a08070','#7a6558'],fact:'Mercury is the closest planet to the Sun and the smallest in our Solar System. A year on Mercury is only 88 Earth days!',stats:{Distance:'57.9M km',Year:'88 days',Moons:'0',Temp:'430°C'}},
+  {name:'Venus',type:'Rocky Planet',emoji:'🌋',color:['#e8c44a','#d4a93a','#c4902a'],fact:'Venus is the hottest planet at 465°C — hotter than Mercury! It spins backwards and a day on Venus is longer than its year!',stats:{Distance:'108M km',Year:'225 days',Moons:'0',Temp:'465°C'}},
+  {name:'Earth',type:'Our Home 🌍',emoji:'🌍',color:['#1a6bb5','#2d7a3a','#1565c0'],fact:'Our beautiful blue home! Earth is the only known planet with liquid water on the surface and life. It\'s just the right distance from the Sun!',stats:{Distance:'150M km',Year:'365 days',Moons:'1',Temp:'15°C'}},
+  {name:'Mars',type:'Rocky Planet',emoji:'🔴',color:['#c1440e','#9c3510','#a83a0c'],fact:'The Red Planet! Mars has the tallest volcano in the Solar System — Olympus Mons — three times taller than Mount Everest!',stats:{Distance:'228M km',Year:'687 days',Moons:'2',Temp:'-60°C'}},
+  {name:'Jupiter',type:'Gas Giant',emoji:'🌀',color:['#c88b4a','#e8a060','#a07040'],fact:'Jupiter is the BIGGEST planet — more than 1,300 Earths could fit inside it! Its Great Red Spot is a storm bigger than Earth that\'s raged for 350+ years!',stats:{Distance:'778M km',Year:'12 yrs',Moons:'95',Temp:'-110°C'}},
+  {name:'Saturn',type:'Gas Giant 💍',emoji:'🪐',color:['#e8d08a','#d4b870','#c4a860'],fact:'Saturn is so light it could float on water! Its stunning rings are made of ice and rock. Saturn has 146 moons — more than any other planet!',stats:{Distance:'1.4B km',Year:'29 yrs',Moons:'146',Temp:'-140°C'},hasRing:true},
+  {name:'Uranus',type:'Ice Giant',emoji:'🔵',color:['#7de8e8','#5dcfcf','#4dbfbf'],fact:'Uranus is an ice giant that spins on its side — probably knocked over by a giant impact long ago. It has 27 moons and 13 rings!',stats:{Distance:'2.9B km',Year:'84 yrs',Moons:'27',Temp:'-195°C'}},
+  {name:'Neptune',type:'Ice Giant',emoji:'💙',color:['#2255cc','#3366dd','#1a44bb'],fact:'Neptune is the farthest planet and has the strongest winds in the Solar System — reaching 2,100 km/h! It was discovered using math before anyone saw it!',stats:{Distance:'4.5B km',Year:'165 yrs',Moons:'16',Temp:'-200°C'}},
+  {name:'Moon',type:'Earth\'s Moon',emoji:'🌕',color:['#aaa9a0','#c0bfb5','#909088'],fact:'Our Moon is the only place beyond Earth where humans have walked! It has no atmosphere, no weather, and the same footprints from Apollo 11 are still there!',stats:{Distance:'384,400 km',Orbit:'27 days',Gravity:'1/6th','Surface':'-170 to 130°C'}},
+];
+
+function makePlanetCanvas(colors,size,hasRing){
+  const c=document.createElement('canvas');
+  c.width=size;c.height=size;
+  const ctx=c.getContext('2d');
+  const cx=size/2,cy=size/2,r=size/2-2;
+  ctx.save();
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+  const g=ctx.createLinearGradient(0,0,size,size);
+  g.addColorStop(0,colors[0]);g.addColorStop(0.5,colors[1]);g.addColorStop(1,colors[2]);
+  ctx.fillStyle=g;ctx.fillRect(0,0,size,size);
+  // Surface bands
+  for(let i=0;i<4;i++){
+    ctx.fillStyle=`rgba(0,0,0,${0.04+i*0.02})`;
+    ctx.fillRect(0,r*0.2+i*r*0.3,size,r*0.12);
+  }
+  const spec=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,0,cx-r*0.3,cy-r*0.3,r*0.7);
+  spec.addColorStop(0,'rgba(255,255,255,0.15)');
+  spec.addColorStop(1,'transparent');
+  ctx.fillStyle=spec;ctx.fillRect(0,0,size,size);
+  ctx.restore();
+  return c.toDataURL();
+}
+
+const grid=document.getElementById('planetGrid');
+PLANETS.forEach((p,i)=>{
+  const card=document.createElement('div');
+  card.className='planet-card';
+  const img=makePlanetCanvas(p.color,88,p.hasRing);
+  let visual='';
+  if(p.hasRing){
+    visual=`<div class="planet-ring-wrap"><canvas width="88" height="88" style="border-radius:50%;position:relative;z-index:1" id="pc${i}"></canvas><div class="planet-ring"></div></div>`;
+  } else {
+    visual=`<div class="planet-canvas-wrap"><canvas width="88" height="88" style="border-radius:50%" id="pc${i}"></canvas></div>`;
+  }
+  card.innerHTML=`${visual}<div class="p-name">${p.name}</div><div class="p-type">${p.type}</div>`;
+  card.onclick=()=>showPlanet(p,card);
+  grid.appendChild(card);
+  // Draw planet
+  setTimeout(()=>{
+    const pc=document.getElementById('pc'+i);
+    if(!pc)return;
+    const pctx=pc.getContext('2d');
+    const img2=new Image();img2.src=makePlanetCanvas(p.color,88);
+    img2.onload=()=>pctx.drawImage(img2,0,0);
+  },10);
+});
+
+let lastPCard=null;
+function showPlanet(p,card){
+  if(lastPCard)lastPCard.style.outline='';
+  card.style.outline='2px solid rgba(0,212,255,0.7)';
+  lastPCard=card;
+  const det=document.getElementById('planetDetail');
+  document.getElementById('pdName').textContent=p.emoji+' '+p.name;
+  document.getElementById('pdType').textContent=p.type;
+  document.getElementById('pdFact').textContent=p.fact;
+  const statsEl=document.getElementById('pdStats');
+  statsEl.innerHTML='';
+  Object.entries(p.stats).forEach(([k,v])=>{
+    statsEl.innerHTML+=`<div class="stat"><div class="stat-label">${k}</div><div class="stat-val">${v}</div></div>`;
+  });
+  det.classList.remove('show');void det.offsetWidth;det.classList.add('show');
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ══════════════════════════════════════
+   SNOWFLAKE MASCOT
+══════════════════════════════════════ */
+(function(){
+  const bubble=document.getElementById('flakeBubble');
+  const text=document.getElementById('flakeText');
+  let timer=null;
+  document.querySelectorAll('.what-card').forEach(card=>{
+    card.addEventListener('mouseenter',()=>{
+      clearTimeout(timer);
+      text.textContent=card.getAttribute('data-tip');
+      bubble.classList.add('visible');
+    });
+    card.addEventListener('mouseleave',()=>{
+      timer=setTimeout(()=>bubble.classList.remove('visible'),700);
+    });
+    card.addEventListener('touchstart',()=>{
+      clearTimeout(timer);
+      text.textContent=card.getAttribute('data-tip');
+      bubble.classList.add('visible');
+    },{passive:true});
+  });
+})();
+
+/* ══════════════════════════════════════
+   REVEAL FACTS
+══════════════════════════════════════ */
+function revealFact(btn){
+  const hidden=btn.nextElementSibling;
+  if(hidden.style.display==='block'){
+    hidden.style.display='none';
+    btn.textContent='✨ Bonus Fact';
+  } else {
+    hidden.style.display='block';
+    btn.textContent='✖ Hide';
+  }
+}
+</script>
+</body>
+</html>
